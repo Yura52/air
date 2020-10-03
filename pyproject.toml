@@ -1,0 +1,23 @@
+[build-system]
+requires = ["flit_core >=2,<4"]
+build-backend = "flit_core.buildapi"
+
+[tool.black]
+skip_string_normalization = true
+
+[tool.flit.metadata]
+author = "Yura52"
+author-email = "strausmg@gmail.com"
+classifiers = [
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: MacOS",
+    "Operating System :: Unix",
+    "Programming Language :: Python :: 3"
+]
+dist-name = "air52"
+home-page = "https://github.com/Yura52/air"
+keywords = "library, python"
+module = "air"
+requires = []
+requires-python = ">=3.7"

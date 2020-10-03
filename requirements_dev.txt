@@ -1,0 +1,10 @@
+black
+coverage
+flake8
+flit
+ipdb
+isort
+jupyterlab
+mypy
+pre-commit-hooks
+pytest
