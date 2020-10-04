@@ -1,7 +1,7 @@
 import tempfile
 from pathlib import Path
 
-import air.io
+import air
 
 
 def test_io():
@@ -9,15 +9,15 @@ def test_io():
     with tempfile.TemporaryDirectory() as d:
         path = Path(d) / 'whatever'
 
-        air.io.dump_pickle(data, path)
-        assert air.io.load_pickle(path) == data
+        air.dump_pickle(data, path)
+        assert air.load_pickle(path) == data
 
-        air.io.dump_json(data, path)
-        assert air.io.load_json(path) == data
+        air.dump_json(data, path)
+        assert air.load_json(path) == data
 
-        air.io.dump_jsonl([data], path)
-        assert air.io.load_jsonl(path) == [data]
+        air.dump_jsonl([data], path)
+        assert air.load_jsonl(path) == [data]
 
-        air.io.dump_jsonl([data], path)
-        air.io.extend_jsonl([data], path)
-        assert air.io.load_jsonl(path) == [data, data]
+        air.dump_jsonl([data], path)
+        air.extend_jsonl([data], path)
+        assert air.load_jsonl(path) == [data, data]
