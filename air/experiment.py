@@ -50,6 +50,7 @@ class Experiment:
         saveload_mode: str = _SaveLoadMode.PICKLE.value,
         writer_kwargs: ty.Optional[ty.Dict[str, ty.Any]] = None,
         debug: bool = False,
+        verbose: bool = True,
     ) -> None:
         dir_ = Path(dir_)
         if debug:
@@ -102,6 +103,8 @@ class Experiment:
                     'If writer_kwargs is not None, then torch must be installed'
                 ) from err
             self.writer = SummaryWriter(self.dir, **writer_kwargs)
+        if verbose:
+            print(f'Experiment{" (DEBUG)" if debug else ""}: {self.dir.absolute()}')
 
     @property
     def dir(self) -> Path:
