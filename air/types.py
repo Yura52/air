@@ -6,7 +6,7 @@ import os
 import typing as ty
 from pathlib import Path
 
-PathLike = ty.Union[Path, str, os.PathLike[str]]
+PathLike = ty.Union[Path, str, os.PathLike]
 
 T = ty.TypeVar('T')
 
@@ -15,7 +15,7 @@ Recursive = ty.Union[  # type: ignore
     T,
     ty.Tuple['Recursive', ...],  # type: ignore
     ty.List['Recursive'],  # type: ignore
-    ty.Dict[ty.Any, 'Recursive']  # type: ignore
+    ty.Dict[ty.Any, 'Recursive'],  # type: ignore
 ]
 """
 .. note::
@@ -41,7 +41,7 @@ JSON = ty.Union[  # type: ignore
     float,
     str,
     ty.List['JSON'],  # type: ignore
-    ty.Mapping[str, 'JSON']  # type: ignore
+    ty.Mapping[str, 'JSON'],  # type: ignore
 ]
 """
 .. note::
@@ -77,10 +77,11 @@ class Part(enum.Enum):
 
 
 @ty.no_type_check
-def optionals(cls: type) -> type:
-    """Make all fields Optional with the default value None."""
-    if not dc.is_dataclass(cls):
-        cls = dc.dataclass(cls)
+def _optionals_impl(cls: type, *args, **kwargs) -> type:
+    if dc.is_dataclass(cls):
+        assert not args and not kwargs
+    else:
+        cls = dc.dataclass(*args, **kwargs)(cls)
     fields = []
     for x in dc.fields(cls):
         # https://docs.python.org/3/library/dataclasses.html#dataclasses.Field
@@ -115,3 +116,31 @@ def optionals(cls: type) -> type:
             if not k.startswith('_')
         }
     )
+
+
+@ty.no_type_check
+def optionals(
+    cls: ty.Optional[type] = None, *args, **kwargs
+) -> ty.Union[type, ty.Callable]:
+    """Make a dataclass; make all fields Optionals with None as the default value.
+
+    Examples::
+
+        @optionals
+        class A:
+            b: int
+            c: str = 'abc'
+        assert A() == A(None, 'abc')
+
+        @optionals(frozen=True)
+        class A:
+            b: int
+        x = A(1)
+        x.b = 2  # raises exception
+    """
+
+    def f(cls_: type) -> type:
+        return _optionals_impl(cls_, *args, **kwargs)
+
+    # check if the decorator is used with paranthesis
+    return f(cls) if cls else f
