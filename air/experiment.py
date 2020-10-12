@@ -56,13 +56,13 @@ class Experiment:
         if debug:
             dir_ = dir_.parent / f'debug_{dir_.name}'
         mode = (
-            _Mode(mode)
+            _Mode(mode)  # type: ignore
             if mode
             else _Mode.REMOVE_IF_EXISTS
             if debug
             else _Mode.EXIST_NOT_OK
         )
-        saveload_mode = _SaveLoadMode(saveload_mode)
+        saveload_mode = _SaveLoadMode(saveload_mode)  # type: ignore
 
         if mode == _Mode.EXIST_OK:
             pass

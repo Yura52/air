@@ -2,15 +2,21 @@ __all__ = ['PathLike', 'Recursive', 'JSON', 'Part', 'optionals']
 
 import dataclasses as dc
 import enum
+import os
+import typing as ty
 from pathlib import Path
-from typing import Any, Dict, List, Mapping, Optional, Tuple, TypeVar, Union
 
-PathLike = Union[Path, bytes, str]
+PathLike = ty.Union[Path, str, os.PathLike[str]]
 
-T = TypeVar('T')
+T = ty.TypeVar('T')
 
 # mypy cannot resolve recursive types
-Recursive = Union[T, Tuple['Recursive', ...], List['Recursive'], Dict[Any, 'Recursive']]  # type: ignore
+Recursive = ty.Union[  # type: ignore
+    T,
+    ty.Tuple['Recursive', ...],  # type: ignore
+    ty.List['Recursive'],  # type: ignore
+    ty.Dict[ty.Any, 'Recursive']  # type: ignore
+]
 """
 .. note::
     The following values are all "instances" of `Recursive[int]`:
@@ -28,7 +34,15 @@ Recursive = Union[T, Tuple['Recursive', ...], List['Recursive'], Dict[Any, 'Recu
         Point(0, 1)  # also `Recursive[int]`
 """
 
-JSON = Union[None, bool, int, float, str, List['JSON'], Mapping[str, 'JSON']]  # type: ignore
+JSON = ty.Union[  # type: ignore
+    None,
+    bool,
+    int,
+    float,
+    str,
+    ty.List['JSON'],  # type: ignore
+    ty.Mapping[str, 'JSON']  # type: ignore
+]
 """
 .. note::
     The following values are all "instances" of `JSON`:
@@ -62,9 +76,11 @@ class Part(enum.Enum):
         return self == Part.TEST
 
 
+@ty.no_type_check
 def optionals(cls: type) -> type:
     """Make all fields Optional with the default value None."""
-    assert dc.is_dataclass(cls)
+    if not dc.is_dataclass(cls):
+        cls = dc.dataclass(cls)
     fields = []
     for x in dc.fields(cls):
         # https://docs.python.org/3/library/dataclasses.html#dataclasses.Field
@@ -80,15 +96,14 @@ def optionals(cls: type) -> type:
                 'metadata',
             ]
         }
-        if (
-            isinstance(kwargs['default'], dc._MISSING_TYPE)
-            and isinstance(kwargs['default_factory'], dc._MISSING_TYPE)
+        if isinstance(kwargs['default'], dc._MISSING_TYPE) and isinstance(
+            kwargs['default_factory'], dc._MISSING_TYPE
         ):
             kwargs['default'] = None
         type_ = (
             x.type
             if getattr(x.type, '_name', None) == 'Optional'
-            else Optional[x.type]
+            else ty.Optional[x.type]
         )
         fields.append((x.name, type_, dc.field(**kwargs)))
     return dc.make_dataclass(
