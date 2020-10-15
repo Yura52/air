@@ -104,7 +104,10 @@ class Experiment:
                 ) from err
             self.writer = SummaryWriter(self.dir, **writer_kwargs)
         if verbose:
-            print(f'Experiment{" (DEBUG)" if debug else ""}: {self.dir.absolute()}')
+            msg = f'Experiment{" (DEBUG)" if debug else ""}: {self.dir.absolute()}'
+            print('=' * len(msg))
+            print(msg)
+            print('=' * len(msg))
 
     @property
     def dir(self) -> Path:
