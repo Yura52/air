@@ -51,5 +51,5 @@ def prun(
     results = run_tasks(tasks, worker_count)
     if verbose:
         assert tqdm, 'If verbose is True, then tqdm library must be installed'
-        results = tqdm(results)
+        results = tqdm(results, total=len(tasks))
     return list(results)
